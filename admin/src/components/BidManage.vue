@@ -1,11 +1,9 @@
 <template>
-  <div id="app">
-    <router-view></router-view>
+  <div>
+    this is Bid manage
   </div>
 </template>
-
 <script>
 export default {
-  name: 'app'
 }
 </script>

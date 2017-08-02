@@ -22,7 +22,17 @@ module.exports = {
     extensions: ['.js', '.vue', '.json'],
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
-      '@': resolve('src')
+      '@': resolve('src'),
+      'api': resolve('../meteorServer/imports/api')
+    }
+  },
+  externals: function (context, request, callback) {
+    var match = request.match(/^meteor\/(.+)$/);
+    var pack = match && match[1];
+    if (pack) {
+      callback(null, 'Package["' + pack + '"]');
+    } else {
+      callback()
     }
   },
   module: {
