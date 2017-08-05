@@ -4,17 +4,18 @@ import AdminHome from '@/components/AdminHome'
 import PaishouManage from '@/components/PaishouManage'
 import BiaoshuManage from '@/components/BiaoshuManage'
 import BidManage from '@/components/BidManage'
+import Login from '@/components/Login'
+import {Meteor} from 'meteor/meteor'
 
 Vue.use(Router)
 
-export default new Router({
-  routes: [
-    {
+const router = new Router({
+  routes: [{
       path: '/',
       name: 'adminhome',
       component: AdminHome,
       children: [{
-        path: 'paishoumanage',
+        path: '',
         name: 'paishoumanage',
         component: PaishouManage
       }, {
@@ -26,6 +27,18 @@ export default new Router({
         name: 'bidmanage',
         component: BidManage
       }]
-    }
-  ]
+    }, {
+        path: '/login',
+        name: 'login',
+        component: Login
+    }]
 })
+
+router.beforeEach((to, from, next) =>{
+  if(!Meteor.userId() && to.name !=='login') {
+    next('/login')
+  }
+  next()
+})
+
+export default router
