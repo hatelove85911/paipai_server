@@ -1,0 +1,4 @@
+dist/*
+node_modules/
+.wepycache
+!dist/wept.json
