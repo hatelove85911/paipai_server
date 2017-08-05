@@ -6,6 +6,7 @@
   "scripts": {
     "install": "./npmScripts/install.sh",
     "dev": "./npmScripts/dev.sh",
+    "kill": "./npmScripts/killdevprocess.sh",
     "build": "node admin/build/build.js"
   },
   "engines": {
