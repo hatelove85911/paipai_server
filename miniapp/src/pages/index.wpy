@@ -85,6 +85,18 @@
   import Group from '../components/group'
   import Toast from 'wepy-com-toast'
   import testMixin from '../mixins/test'
+  import {createClass} from '../asteroidAPI.js'
+
+  const Asteroid = createClass()
+  // Connect to a Meteor backend
+  const asteroid = new Asteroid({
+      endpoint: "ws://localhost:3000/websocket",
+      SocketConstructor: function (endpoint) {
+        return wx.connectSocket({
+                url: endpoint
+              })
+      }
+  });
 
   export default class Index extends wepy.page {
     config = {
