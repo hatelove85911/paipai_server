@@ -86,17 +86,7 @@
   import Toast from 'wepy-com-toast'
   import testMixin from '../mixins/test'
   import {createClass} from '../asteroidAPI.js'
-
-  const Asteroid = createClass()
-  // Connect to a Meteor backend
-  const asteroid = new Asteroid({
-      endpoint: "ws://localhost:3000/websocket",
-      SocketConstructor: function (endpoint) {
-        return wx.connectSocket({
-                url: endpoint
-              })
-      }
-  });
+  import immutableCollectionMixin from "asteroid-immutable-collections-mixin";
 
   export default class Index extends wepy.page {
     config = {
@@ -227,6 +217,37 @@
     }
 
     onLoad() {
+      const Asteroid = createClass([immutableCollectionMixin])
+      // Connect to a Meteor backend
+      const asteroid = new Asteroid({
+          endpoint: "ws://localhost:3000/websocket",
+          SocketConstructor: function (endpoint) {
+            var socket = {
+              send: msg => wx.sendSocketMessage({
+                data: msg
+              }),
+              close: () => wx.closeSocket()
+            }
+            wx.onSocketOpen(function () {
+              socket.onopen && socket.onopen()
+            })
+            wx.onSocketClose(function () {
+              socket.onclose && socket.onclose()
+            })
+            wx.onSocketError(function () {
+              socket.onerror && socket.onerror()
+            })
+            wx.onSocketMessage(function (res) {
+              socket.onmessage && socket.onmessage(res)
+            })
+            wx.connectSocket({
+              url: endpoint
+            })
+            return socket
+          }
+      });
+      asteroid.subscribe("paishous");
+      var paishousMap = asteroid.collections.get("paishous")
       let self = this
       this.$parent.getUserInfo(function (userInfo) {
         if (userInfo) {

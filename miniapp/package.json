@@ -11,6 +11,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "asteroid-immutable-collections-mixin": "^3.0.0",
+    "immutable": "^3.8.1",
     "wepy": "^1.5.7",
     "wepy-async-function": "^1.4.4",
     "wepy-com-toast": "^1.0.2"

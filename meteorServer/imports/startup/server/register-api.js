@@ -3,4 +3,5 @@
 import '../../api/links/methods.js';
 import '../../api/links/server/publications.js';
 
-import '../../api/paishous/paishous.js';
+import '../../api/paishous/server/publications.js';
+
