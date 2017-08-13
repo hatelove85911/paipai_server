@@ -36,6 +36,8 @@ export default {
     }
   },
   mounted: function () {
+    Meteor.subscribe('paishous.all');
+
     Tracker.autorun(() => {
       this.paishous = Paishous.find().fetch()
     })
