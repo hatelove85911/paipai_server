@@ -1,17 +1,13 @@
 <style lang="less">
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-}
+@import './style/weui.less';
 </style>
 
 <script>
 import wepy from 'wepy'
 import 'wepy-async-function'
+import Promise from 'promise-polyfill'; 
+import {createClass} from './asteroidAPI.js'
+import immutableCollectionMixin from "asteroid-immutable-collections-mixin";
 
 export default class extends wepy.app {
   config = {
@@ -32,24 +28,48 @@ export default class extends wepy.app {
 
   constructor () {
     super()
+    this.use('promisify');
     this.use('requestfix')
   }
 
   onLaunch() {
-    this.testAsync()
-  }
-
-  sleep (s) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve('promise resolved')
-      }, s * 1000)
+    const Asteroid = createClass([immutableCollectionMixin])
+    // Connect to a Meteor backend
+    const asteroid = new Asteroid({
+        endpoint: "ws://localhost:3000/websocket",
+        SocketConstructor: function (endpoint) {
+          var socket = {
+            send: msg => wx.sendSocketMessage({
+              data: msg
+            }),
+            close: () => wx.closeSocket()
+          }
+          wx.onSocketOpen(function () {
+            socket.onopen && socket.onopen()
+          })
+          wx.onSocketClose(function () {
+            socket.onclose && socket.onclose()
+          })
+          wx.onSocketError(function () {
+            socket.onerror && socket.onerror()
+          })
+          wx.onSocketMessage(function (res) {
+            socket.onmessage && socket.onmessage(res)
+          })
+          wx.connectSocket({
+            url: endpoint
+          })
+          return socket
+        }
+    });
+    var paishousSubscription = asteroid.subscribe("paishous.all");
+    paishousSubscription.on('ready', function (data) {
+      const paishous = asteroid.collections.get('paishous')
+      console.log('abc')
     })
-  }
 
-  async testAsync () {
-    const data = await this.sleep(3)
-    console.log(data)
+    // store asteroid reference on app instance
+    this.asteroid = asteroid
   }
 
   getUserInfo(cb) {
@@ -57,10 +77,23 @@ export default class extends wepy.app {
     if (this.globalData.userInfo) {
       return this.globalData.userInfo
     }
-    wepy.getUserInfo({
-      success (res) {
-        that.globalData.userInfo = res.userInfo
-        cb && cb(res.userInfo)
+    wepy.login()
+    .then(function (res) {
+      if (res.code) {
+        wepy.request({
+          url: 'http://localhost:3000/wxlogin',
+          data: {
+            code: res.code
+          },
+        })
+        .then(function (res) {
+          wepy.getUserInfo({
+            success (res) {
+              that.globalData.userInfo = res.userInfo
+              cb && cb(res.userInfo)
+            }
+          })
+        })
       }
     })
   }
