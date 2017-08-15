@@ -39,6 +39,9 @@
     }
     onLoad() {
       let self = this
+      this.$parent.miniappLogin().then(function (data) {
+        console.log(data)
+      })
       this.$parent.getUserInfo(function (userInfo) {
         if (userInfo) {
           self.userInfo = userInfo

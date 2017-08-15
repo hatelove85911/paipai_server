@@ -3,3 +3,4 @@
 import './fixtures.js';
 import './register-api.js';
 import './routes.js';
+import './wxminiappLoginHandler.js';

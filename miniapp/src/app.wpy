@@ -71,7 +71,15 @@ export default class extends wepy.app {
     // store asteroid reference on app instance
     this.asteroid = asteroid
   }
-
+  miniappLogin(){
+    const that = this
+    return wepy.login().then(res => {
+      return that.asteroid.login({
+        wxminiapp: true,
+        code: res.code
+      })
+    })
+  }
   getUserInfo(cb) {
     const that = this
     if (this.globalData.userInfo) {
