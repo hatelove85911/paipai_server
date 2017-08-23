@@ -4,10 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "install": "./npmScripts/install.sh",
-    "dev": "./npmScripts/dev.sh",
-    "kill": "./npmScripts/killdevprocess.sh",
-    "build": "node admin/build/build.js"
+    "install": "npm run installMeteor ; npm run installMiniapp",
+    "installMeteor": "cd meteor && npm install",
+    "installMiniapp": "cd miniapp && npm install",
+
+    "dev": "npm run startDevMongo & npm run startDevMeteor",
+    "startDevMongo": "docker-compose -f ./docker-compose-dev.yml up",
+    "startDevMeteor": "cd meteor && MONGO_URL='mongodb://localhost:27017/paipaidev' meteor debug",
+
+    "buildMeteorImage": "cd meteor && meteor build --directory ../meteorBuild && cd ../ && docker build --file ./meteorDockerfile -t paipai .",
+    "preview": "docker-compose -f docker-compose-preview.yml up"
   },
   "engines": {
     "node": ">=4.3",
