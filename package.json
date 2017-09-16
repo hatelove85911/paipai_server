@@ -5,13 +5,12 @@
   "main": "index.js",
   "scripts": {
     "install": "npm run installMeteor ; npm run installMiniapp",
-    "installMeteor": "cd meteor && npm install",
+    "installMeteor": "cd meteor && meteor npm install",
     "installMiniapp": "cd miniapp && npm install",
-
-    "dev": "npm run startDevMongo & npm run startDevMeteor",
+    "dev": "npm run startDevMongo & npm run startDevMeteor & npm run startDevMiniapp",
     "startDevMongo": "docker-compose -f ./docker-compose-dev.yml up",
     "startDevMeteor": "cd meteor && MONGO_URL='mongodb://localhost:27017/paipaidev' meteor debug",
-
+    "startDevMiniapp":"cd miniapp && wepy build --watch",
     "buildMeteorImage": "cd meteor && meteor build --directory ../meteorBuild && cd ../ && docker build --file ./meteorDockerfile -t paipai .",
     "preview": "docker-compose -f docker-compose-preview.yml up"
   },
@@ -23,5 +22,8 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "dependencies": {
+    "bcrypt": "^1.0.3"
+  }
 }

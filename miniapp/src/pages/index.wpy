@@ -3,15 +3,36 @@
 <template>
   <view class="page">
         <view class="page__bd">
-          <!-- <repeat for="{{paishous}}" key="index" index="index" item="paishou"> -->
-          <!--     <view :item="item" class="weui-cells weui-cells_after-title"> -->
-          <!--         <view class="weui-cell"> -->
-          <!--             <view class="weui-cell__bd">标题文字</view> -->
-          <!--             <view class="weui-cell__ft">说明文字</view> -->
-          <!--         </view> -->
-          <!--     </view> -->
-          <!--     <child :item="item"></child> -->
-          <!-- </repeat> -->
+            <!-- <view class="page__title">注册成为拍手</view> -->
+            <!-- <view class="page__desc">您还没有成为拍手</view> -->
+        </view>
+        <view class="page__bd page__bd_spacing">
+          <view hidden="{{isBusy}}">
+            <block wx:if="{{isPaishou}}">
+              <view>is paishou already</view>
+            </block>
+            <block wx:else>
+                <view class="weui-cells weui-cells_after-title">
+                    <view class="weui-cell weui-cell_input">
+                        <view class="weui-cell__hd">
+                            <view class="weui-label">姓名</view>
+                        </view>
+                        <view class="weui-cell__bd">
+                        <input class="weui-input" placeholder="请输入真实姓名" bindinput="bindNameInput"/>
+                        </view>
+                    </view>
+                    <view class="weui-cell weui-cell_input weui-cell_vcode">
+                        <view class="weui-cell__hd">
+                            <view class="weui-label">手机号</view>
+                        </view>
+                        <view class="weui-cell__bd">
+                        <input class="weui-input" placeholder="请输入手机号" bindinput="bindPhoneNoInput"/>
+                        </view>
+                    </view>
+                </view>
+                <button class="weui-btn" type="primary" bindtap="handleRegister">注册成为拍手</button>
+            </block>
+          </view>
         </view>
     </view>
 </template>
@@ -21,33 +42,70 @@
 
   export default class Index extends wepy.page {
     config = {
-      navigationBarTitleText: '拍手列表'
+      navigationBarTitleText: '羽山拍牌'
     }
     components = {
     }
     mixins = []
     data = {
-    }
-    computed = {
-      now () {
-        return +new Date()
-      }
+      isBusy: true,
+      busyText: '登录中',
+      isPaishou: false,
+      name: '',
+      phoneNo: ''
     }
     methods = {
+      handleRegister () {
+        this.busy = true
+        this.busyText = '正在注册拍手，请稍侯...'
+        this.asteroid.call('registerAsPaishou', this.name, this.phoneNo)
+          .then(() => {
+            this.busy = false
+            this.$apply()
+          })
+      },
+      bindNameInput (evt) {
+        this.name = evt.detail.value
+      },
+      bindPhoneNoInput (evt) {
+        this.phoneNo = evt.detail.value
+      }
     }
     events = {
     }
-    onLoad() {
-      let self = this
-      this.$parent.miniappLogin().then(function (data) {
-        console.log(data)
+    miniappLogin(res){
+      return this.asteroid.login({
+        wxminiapp: true,
+        code: res.code
       })
-      this.$parent.getUserInfo(function (userInfo) {
-        if (userInfo) {
-          self.userInfo = userInfo
+    }
+    watch = {
+        isBusy (newValue, oldValue) {
+          if (newValue) {
+            wepy.showLoading({
+              title: this.busyText
+            })
+          } else {
+            wepy.hideLoading()
+          }
         }
-        self.$apply()
+    }
+    onLoad() {
+      const that = this
+      this.asteroid = this.$parent.asteroid
+
+      wepy.showLoading({
+        title: this.busyText
       })
+
+      // login to system with wx
+      this.$parent.loginPromise.then(res => this.miniappLogin(res))
+        .then(() => this.asteroid.call('isPaishou'))
+        .then((isPaishou) => {
+          this.isPaishou = isPaishou
+          this.isBusy = false
+          this.$apply()
+        })
     }
   }
 </script>
